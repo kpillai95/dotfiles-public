@@ -1,0 +1,221 @@
+#!/bin/bash
+
+source "$CONFIG_DIR/colors.sh"
+# This is a demo config to showcase some of the most important commands.
+# It is meant to be changed and configured, as it is intentionally kept sparse.
+# For a (much) more advanced configuration example see my dotfiles:
+# https://github.com/FelixKratz/dotfiles
+
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+##### Bar Appearance #####
+# Configuring the general appearance of the bar.
+# These are only some of the options available. For all options see:
+# https://felixkratz.github.io/SketchyBar/config/bar
+# If you are looking for other colors, see the color picker:
+# https://felixkratz.github.io/SketchyBar/config/tricks#color-picker
+
+sketchybar --bar position=top height=40 blur_radius=50 color=$BAR_COLOR topmost=off
+
+##### Changing Defaults #####
+# We now change some default values, which are applied to all further items.
+# For a full list of all available item properties see:
+# https://felixkratz.github.io/SketchyBar/config/items
+
+default=(
+  padding_left=5
+  padding_right=5
+  icon.font="SF Pro:Semibold:15.0"
+  label.font="SF Pro:Semibold:15.0"
+  icon.color=$ACCENT_COLOR
+  label.color=$ACCENT_COLOR
+  background.color=$ITEM_BG_COLOR
+  background.corner_radius=10
+  background.height=24
+  icon.padding_left=4
+  icon.padding_right=10
+  label.padding_left=4
+  label.padding_right=10 )
+sketchybar --default "${default[@]}"
+
+
+# -- Left Side Items --#
+
+# Register the aerospace_workspace_change event
+sketchybar --add event aerospace_workspace_change
+
+# Add Aerospace workspaces (using regular items, not space components)
+# Note: workspace 0 in Aerospace maps to workspace 10 (alt-0 = workspace 10)
+# Z is display alias for AeroSpace workspace 7
+SPACE_SIDS=(1 2 3 4 8 9 10 C X Z)
+
+for sid in "${SPACE_SIDS[@]}"
+do
+  # Per-item script on workspace_change = parallel updates (like native space + $SELECTED); see Josean sketchybar guide.
+  sketchybar --add item space.$sid left \
+             --set space.$sid icon=$sid \
+                              icon.font="SF Pro:Semibold:16.0" \
+                              label.font="sketchybar-app-font:Regular:16.0" \
+                              label.padding_left=4 \
+                              label.padding_right=4 \
+                              label="" \
+                              background.drawing=on \
+                              background.color=$SPACE_BG_COLOR \
+                              background.corner_radius=8 \
+                              background.height=24 \
+                              background.padding_left=6 \
+                              background.padding_right=6 \
+                              drawing=off \
+                              icon.drawing=off \
+                              label.drawing=off \
+                              script="$PLUGIN_DIR/aerospace_space_item.sh" \
+                              click_script="aerospace workspace $sid" \
+             --subscribe space.$sid aerospace_workspace_change
+done
+
+# Add workspace monitor that updates all workspaces
+# Subscribes to aerospace_workspace_change event for immediate updates
+# AGGRESSIVE OPTIMIZATION: Polling at 30s (events handle 99% of updates instantly)
+# CHANGED: update_freq=3 → update_freq=30 (aggressive battery optimization)
+sketchybar --add item workspace_monitor left \
+           --set workspace_monitor script="$PLUGIN_DIR/aerospace_workspaces.sh" \
+                                    update_freq=5 \
+                                    drawing=off \
+           --subscribe workspace_monitor aerospace_workspace_change system_woke
+
+sketchybar --add item front_app left \
+           --set front_app script="$PLUGIN_DIR/front_app.sh" \
+                          icon.font="sketchybar-app-font:Regular:16.0" \
+                          icon.drawing=on \
+                          icon.padding_left=0 \
+                          icon.padding_right=8 \
+                          icon.color=$ORANGE_COLOR \
+                          label.drawing=on \
+                          label.font="SF Pro:Semibold:16.0" \
+                          label.color=$ORANGE_COLOR \
+                          background.drawing=off \
+                          icon="" \
+                          label="" \
+           --subscribe front_app front_app_switched system_woke
+
+# -- Right Side Items --#
+
+sketchybar --add item battery right \
+           --set battery script="$PLUGIN_DIR/battery.sh" \
+                         update_freq=10 \
+                         background.drawing=on \
+                         icon.drawing=off \
+                         label="" \
+           --subscribe battery system_woke
+
+sketchybar --add item weather right \
+           --set weather icon="" \
+                         label="" \
+                         icon.color=$ACCENT_COLOR \
+                         label.color=$ACCENT_COLOR \
+                         icon.drawing=on \
+                         label.drawing=on \
+                         background.drawing=on \
+                         background.color=$ITEM_BG_COLOR \
+                         script="$PLUGIN_DIR/weather.sh" \
+                         update_freq=300 \
+           --subscribe weather mouse.entered mouse.exited mouse.exited.global mouse.clicked system_woke
+sketchybar --add item calendar right \
+           --set calendar icon.drawing=off \
+                          script="$PLUGIN_DIR/calendar.sh" \
+                          update_freq=30 \
+                          label="$(date +'%a %d %b %I:%M %p')" \
+           --subscribe calendar system_woke
+
+sketchybar --add item cpu right \
+           --set cpu update_freq=2 \
+                     icon=􀫥 \
+                     script="$PLUGIN_DIR/cpu.sh" \
+           --subscribe cpu system_woke
+
+sketchybar --add item disk right \
+           --set disk icon=􀤂 \
+                     script="$PLUGIN_DIR/disk.sh" \
+                     update_freq=30 \
+                     label="" \
+           --subscribe disk system_woke
+
+# Claude usage: solid dark-orange pill with Claude app icon
+sketchybar --add item claude_usage right \
+           --set claude_usage \
+                 update_freq=120 \
+                 script="$PLUGIN_DIR/claude_usage.sh" \
+                 click_script="FORCE=1 $PLUGIN_DIR/claude_usage.sh" \
+                 icon=":claude:" \
+                 icon.font="sketchybar-app-font:Regular:16.0" \
+                 icon.drawing=on \
+                 icon.padding_left=6 \
+                 icon.padding_right=4 \
+                 label="-% | -%" \
+                 label.color=0xffffffff \
+                 background.drawing=on \
+                 background.color=0xffA0522D \
+           --subscribe claude_usage system_woke mouse.clicked mouse.right_clicked
+
+sketchybar --add item beeper right \
+           --set beeper script="$PLUGIN_DIR/beeper.sh" \
+                      update_freq=5 \
+                      icon.font="sketchybar-app-font:Regular:16.0" \
+                      icon.drawing=on \
+                      label.drawing=on \
+                      label.font="SF Pro:Semibold:15.0" \
+                      background.drawing=on \
+                      background.color=$ITEM_BG_COLOR \
+                      background.corner_radius=10 \
+                      background.height=24 \
+                      icon.color=$ACCENT_COLOR \
+                      label.color=$ACCENT_COLOR \
+                      icon="" \
+                      label="" \
+           --subscribe beeper system_woke front_app_switched
+
+sketchybar --add item spark right \
+           --set spark script="$PLUGIN_DIR/spark.sh" \
+                      update_freq=5 \
+                      icon.font="sketchybar-app-font:Regular:16.0" \
+                      icon.drawing=on \
+                      label.drawing=on \
+                      label.font="SF Pro:Semibold:15.0" \
+                      background.drawing=on \
+                      background.color=$ITEM_BG_COLOR \
+                      background.corner_radius=10 \
+                      background.height=24 \
+                      icon.color=$ACCENT_COLOR \
+                      label.color=$ACCENT_COLOR \
+                      icon="" \
+                      label="" \
+           --subscribe spark system_woke front_app_switched
+
+sketchybar --add item todoist right \
+           --set todoist script="$PLUGIN_DIR/todoist.sh" \
+                      update_freq=5 \
+                      icon.font="sketchybar-app-font:Regular:16.0" \
+                      icon.drawing=on \
+                      label.drawing=on \
+                      label.font="SF Pro:Semibold:15.0" \
+                      background.drawing=on \
+                      background.color=$ITEM_BG_COLOR \
+                      background.corner_radius=10 \
+                      background.height=24 \
+                      icon.color=$ACCENT_COLOR \
+                      label.color=$ACCENT_COLOR \
+                      icon="" \
+                      label="" \
+           --subscribe todoist system_woke front_app_switched
+
+##### Force all scripts to run the first time (never do this in a script) #####
+sketchybar --update
+
+# Initialize previous workspace file
+echo "" > /tmp/sketchybar_prev_workspace 2>/dev/null || true
+
+# Workspace script (CONFIG_DIR required in subshells SketchyBar spawns)
+(sleep 0.1 && "$PLUGIN_DIR/aerospace_workspaces.sh") &
+
+# Trigger weather update immediately after reload
+(sleep 0.2 && SENDER="forced" "$PLUGIN_DIR/weather.sh") &
+

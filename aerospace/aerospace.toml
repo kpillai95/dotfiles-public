@@ -1,0 +1,186 @@
+after-login-command = []
+after-startup-command = []
+
+# Start AeroSpace at login
+start-at-login = true
+
+# Reference: https://github.com/i3/i3/blob/next/etc/config-ˍ
+# i3 doesn't have "normalizations" feature that why we disable them here.
+# But the feature is very helpful.
+# Normalizations eliminate all sorts of weird tree configurations that don't make sense.
+# Give normalizations a chance and enable them back.
+enable-normalization-flatten-containers = true
+
+# Mouse follows focus when focused monitor changes
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# SketchyBar: sh wrapper (no bash -lc). Keybindings also trigger it with the target workspace for instant bar paint.
+exec-on-workspace-change = [
+  'exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh',
+  'exec-and-forget borders active_color=0xffe1e3e4 inactive_color=0xff494d64 width=0'
+]
+
+[gaps]
+inner.horizontal = 0
+inner.vertical   = 0
+outer.left       = 0
+outer.bottom     = 0
+outer.right      = 0
+outer.top        = 3
+
+[workspace-to-monitor-force-assignment]
+Z = ['secondary', 2]
+
+[mode.main.binding]
+    # See: https://nikitabobko.github.io/AeroSpace/goodies#open-a-new-window-with-applescript
+    alt-enter = '''exec-and-forget osascript -e '
+    tell application "Terminal"
+        do script
+        activate
+    end tell'
+    '''
+
+    # i3 wraps focus by default
+    alt-a = 'focus left'
+    alt-j = 'focus down'
+    alt-k = 'focus up'
+    alt-s = 'focus right'
+
+    alt-shift-h = 'move left'
+    alt-shift-j = 'move down'
+    alt-shift-k = 'move up'
+    alt-shift-l = 'move right'
+    alt-shift-f = 'fullscreen'
+
+    alt-slash = 'join-with right' 
+    alt-comma = 'join-with down'
+
+    alt-q = 'layout v_accordion' # 'layout stacking' in i3
+    alt-w = 'layout h_accordion' # 'layout tabbed' in i3
+    alt-e = 'layout tiles horizontal vertical' # 'layout toggle split' in i3
+
+    alt-shift-space = 'layout floating tiling' # 'floating toggle' in i3
+
+    # Not supported, because this command is redundant in AeroSpace mental model.
+    # See: https://nikitabobko.github.io/AeroSpace/guide#floating-windows
+    #alt-space = 'focus toggle_tiling_floating'
+
+    # `focus parent`/`focus child` are not yet supported, and it's not clear whether they
+    # should be supported at all https://github.com/nikitabobko/AeroSpace/issues/5
+    # alt-a = 'focus parent'
+
+    alt-1 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 1', 'workspace 1']
+    alt-2 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 2', 'workspace 2']
+    alt-3 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 3', 'workspace 3']
+    alt-4 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 4', 'workspace 4']
+    alt-5 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 5', 'workspace 5']
+    alt-6 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 6', 'workspace 6']
+    alt-7 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 7', 'workspace 7']
+    alt-8 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 8', 'workspace 8']
+    alt-9 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 9', 'workspace 9']
+    alt-0 = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh 10', 'workspace 10']
+    alt-c = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh C', 'workspace C']
+    alt-x = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh X', 'workspace X']
+    alt-g = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh G', 'workspace G']
+    alt-z = ['exec-and-forget /Users/karthikpillai/.config/sketchybar/plugins/trigger_aerospace_workspace_change.sh Z', 'workspace Z']
+
+    alt-shift-1 = 'move-node-to-workspace 1'
+    alt-shift-2 = 'move-node-to-workspace 2'
+    alt-shift-3 = 'move-node-to-workspace 3'
+    alt-shift-4 = 'move-node-to-workspace 4'
+    alt-shift-5 = 'move-node-to-workspace 5'
+    alt-shift-6 = 'move-node-to-workspace 6'
+    alt-shift-7 = 'move-node-to-workspace 7'
+    alt-shift-8 = 'move-node-to-workspace 8'
+    alt-shift-9 = 'move-node-to-workspace 9'
+    alt-shift-0 = 'move-node-to-workspace 10'
+    alt-shift-c = 'move-node-to-workspace C'
+    alt-shift-x = 'move-node-to-workspace X'
+    alt-shift-g = 'move-node-to-workspace G'
+    alt-shift-z = 'move-node-to-workspace Z'
+
+    alt-minus = 'resize smart -50'
+    alt-equal = 'resize smart +50'
+    alt-shift-r = 'reload-config'
+    alt-shift-tab = 'move-workspace-to-monitor --wrap-around next' 
+
+    alt-r = 'mode resize'
+
+    # See: https://nikitabobko.github.io/AeroSpace/commands#mode
+    alt-shift-semicolon = 'mode service'
+
+[mode.resize.binding]
+    h = 'resize width -50'
+    j = 'resize height +50'
+    k = 'resize height -50'
+    l = 'resize width +50'
+    enter = 'mode main'
+    esc = 'mode main'
+
+# 'service' binding mode declaration.
+# See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
+[mode.service.binding]
+    esc = ['reload-config', 'mode main']
+    r = ['flatten-workspace-tree', 'mode main'] # reset layout
+    f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
+    backspace = ['close-all-windows-but-current', 'mode main']
+
+    # sticky is not yet supported https://github.com/nikitabobko/AeroSpace/issues/2
+    #s = ['layout sticky tiling', 'mode main']
+
+    alt-shift-h = ['join-with left', 'mode main']
+    alt-shift-j = ['join-with down', 'mode main']
+    alt-shift-k = ['join-with up', 'mode main']
+    alt-shift-l = ['join-with right', 'mode main']
+
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome.app.cinhimbnkkaeohfgghhklpknlkffjgod'
+run = "move-node-to-workspace 9"
+
+[[on-window-detected]]
+if.app-id = 'com.readdle.SparkDesktop.appstore'
+run = "move-node-to-workspace 4"
+
+[[on-window-detected]]
+if.app-id = 'com.todesktop.230313mzl4w4u92'
+run = "move-node-to-workspace C"
+
+[[on-window-detected]]
+if.app-id = 'com.mitchellh.ghostty'
+run = "move-node-to-workspace X"
+
+[[on-window-detected]]
+if.app-id = 'ai.perplexity.comet'
+run = "move-node-to-workspace 2"
+
+[[on-window-detected]]
+if.app-id = 'company.thebrowser.Browser'
+run = "move-node-to-workspace 2"
+
+[[on-window-detected]]
+if.app-id = 'md.obsidian'
+run = "move-node-to-workspace 3"
+
+[[on-window-detected]]
+if.app-id = 'com.moomoo.mm-mac'
+run = "move-node-to-workspace 8"
+
+[[on-window-detected]]
+if.app-id = 'com.automattic.beeper.desktop'
+run = "move-node-to-workspace 4"
+
+[[on-window-detected]]
+if.app-id = 'notion.id'
+run = "move-node-to-workspace 3"
+
+[[on-window-detected]]
+if.app-id = 'com.chocoford.excalidraw'
+run = "move-node-to-workspace 8"
+
+[[on-window-detected]]
+if.app-id = 'com.cron.electron'
+run = "move-node-to-workspace 10"
+
+[[on-window-detected]]
+if.app-id = 'com.bloombuilt.dayone-mac'
+run = "move-node-to-workspace G"
